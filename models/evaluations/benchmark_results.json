@@ -1,0 +1,86 @@
+{
+  "Baseline_Logistic_Regression": {
+    "Accuracy": 0.9729,
+    "Balanced_Accuracy": 0.7197,
+    "Precision": 1.0,
+    "Recall": 0.4393,
+    "F1_Score": 0.6104,
+    "ROC_AUC": 0.9808,
+    "PR_AUC": 0.8681,
+    "Inference_Latency_ms": 0.305,
+    "Confusion_Matrix": [
+      [
+        3403,
+        0
+      ],
+      [
+        97,
+        76
+      ]
+    ],
+    "Decision_Threshold": 0.5
+  },
+  "Baseline_Random_Forest": {
+    "Accuracy": 0.9807,
+    "Balanced_Accuracy": 0.8006,
+    "Precision": 1.0,
+    "Recall": 0.6012,
+    "F1_Score": 0.7509,
+    "ROC_AUC": 0.9806,
+    "PR_AUC": 0.8879,
+    "Inference_Latency_ms": 33.749,
+    "Confusion_Matrix": [
+      [
+        3403,
+        0
+      ],
+      [
+        69,
+        104
+      ]
+    ],
+    "Decision_Threshold": 0.5
+  },
+  "Proposed_Calibrated_LR": {
+    "Accuracy": 0.9569,
+    "Balanced_Accuracy": 0.9499,
+    "Precision": 0.5309,
+    "Recall": 0.9422,
+    "F1_Score": 0.6792,
+    "ROC_AUC": 0.9922,
+    "PR_AUC": 0.9043,
+    "Inference_Latency_ms": 0.159,
+    "Confusion_Matrix": [
+      [
+        3259,
+        144
+      ],
+      [
+        10,
+        163
+      ]
+    ],
+    "Decision_Threshold": 0.4
+  },
+  "Proposed_LightGBM_Ensemble": {
+    "Accuracy": 0.9894,
+    "Balanced_Accuracy": 0.9203,
+    "Precision": 0.9299,
+    "Recall": 0.8439,
+    "F1_Score": 0.8848,
+    "ROC_AUC": 0.9914,
+    "PR_AUC": 0.9375,
+    "Inference_Latency_ms": 1.178,
+    "Confusion_Matrix": [
+      [
+        3392,
+        11
+      ],
+      [
+        27,
+        146
+      ]
+    ],
+    "Decision_Threshold": 0.4
+  }
+}
