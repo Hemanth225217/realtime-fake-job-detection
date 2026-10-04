@@ -1,6 +1,7 @@
 """
-StreamGuard Desktop Application Launcher.
-Wraps the StreamGuard XAI platform in a standalone native desktop window.
+StreamGuard Native Desktop Application Launcher.
+Ensures backend Python server is running silently, then launches the dedicated desktop app window.
+Zero manual terminal commands required.
 """
 
 import os
@@ -20,66 +21,66 @@ from src.config import API_HOST, API_PORT
 
 def is_server_running():
     try:
-        with urllib.request.urlopen(f"http://{API_HOST}:{API_PORT}/api/health", timeout=1.5) as resp:
+        req = urllib.request.Request(f"http://{API_HOST}:{API_PORT}/api/health")
+        with urllib.request.urlopen(req, timeout=1.2) as resp:
             return resp.status == 200
     except:
         return False
 
 
-def start_backend_server():
+def start_backend():
     from src.api.server import app, get_engine
-    eng = get_engine()
+    # Pre-warm models and explainer
+    _ = get_engine()
     app.run(host=API_HOST, port=API_PORT, debug=False, threaded=True)
 
 
-def launch_native_app():
-    # 1. Ensure backend is running
-    if not is_server_running():
-        print("Starting StreamGuard backend server in background thread...")
-        server_thread = threading.Thread(target=start_backend_server, daemon=True)
-        server_thread.start()
+def main():
+    backend_started_here = False
 
-        # Wait for server ready
-        for _ in range(30):
+    # 1. Start backend server silently if not already running
+    if not is_server_running():
+        server_thread = threading.Thread(target=start_backend, daemon=True)
+        server_thread.start()
+        backend_started_here = True
+
+        for _ in range(40):
             if is_server_running():
                 break
-            time.sleep(0.3)
+            time.sleep(0.2)
 
     target_url = f"http://{API_HOST}:{API_PORT}"
-    print(f"Backend ready at {target_url}. Launching native Desktop App window...")
 
-    # 2. Try launching with pywebview
-    try:
-        import webview
-        icon_path = str(BASE_DIR / "streamguard.ico")
-        
-        window = webview.create_window(
-            title="StreamGuard AI — Real-Time Fake Job Detection & XAI Platform",
-            url=target_url,
-            width=1320,
-            height=880,
-            resizable=True,
-            min_size=(1024, 720),
-            text_select=True
-        )
-        webview.start(debug=False)
-        return
-    except Exception as e:
-        print(f"pywebview notice ({e}). Launching via native Windows App mode...")
+    # 2. Launch dedicated standalone native app window
+    edge_candidates = [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+    ]
 
-    # 3. Fallback to Windows Edge App Mode (Dedicated window without address bar or browser tabs)
-    try:
-        edge_cmd = [
-            "cmd.exe", "/c", "start", "msedge",
-            f"--app={target_url}",
-            f"--window-size=1320,880",
-            f"--app-id=streamguard-xai"
-        ]
-        subprocess.run(edge_cmd, check=True)
-    except Exception as e:
+    launched = False
+    for edge_exe in edge_candidates:
+        if os.path.exists(edge_exe):
+            proc = subprocess.Popen([
+                edge_exe,
+                f"--app={target_url}",
+                "--window-size=1340,880",
+                "--app-id=streamguard-xai"
+            ])
+            launched = True
+            break
+
+    if not launched:
         import webbrowser
         webbrowser.open(target_url)
 
+    # 3. If this process spawned the server thread, keep running while user has app open
+    if backend_started_here:
+        try:
+            while True:
+                time.sleep(2)
+        except (KeyboardInterrupt, SystemExit):
+            pass
+
 
 if __name__ == "__main__":
-    launch_native_app()
+    main()
