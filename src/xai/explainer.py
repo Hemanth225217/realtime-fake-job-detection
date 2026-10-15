@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 from src.ml.feature_extractor import extract_forensic_signals, clean_text
 
 class DualEngineExplainer:
