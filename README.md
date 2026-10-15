@@ -5,37 +5,44 @@
 [![ML Engine](https://img.shields.io/badge/ML-LightGBM%20%2B%20Cost--Sensitive%20Ensemble-green.svg)](https://lightgbm.readthedocs.io/)
 [![Database](https://img.shields.io/badge/Storage-PostgreSQL%2017%20%2B%20SQLite%20Fallback-cyan.svg)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+[![CI](https://github.com/Hemanth225217/realtime-fake-job-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/Hemanth225217/realtime-fake-job-detection/actions/workflows/ci.yml)
 
-An end-to-end, enterprise-grade distributed streaming platform for detecting fraudulent online job postings in real time. **StreamGuard-XAI** resolves the critical limitations of prior academic research by combining high-throughput stream processing (**Apache Kafka + Spark Structured Streaming**), a multi-modal feature representation with 16 domain-engineered forensic risk signals, an imbalanced-compensated gradient ensemble (**LightGBM + Cost-Sensitive LR**), and a **Dual-Engine Glass-Box Explainability (XAI)** framework.
+An end-to-end streaming platform for detecting fraudulent online job postings in real time. **StreamGuard-XAI** combines high-throughput stream processing (**Apache Kafka + Spark Structured Streaming**), a multi-modal feature representation with 16 domain-engineered forensic risk signals, an imbalanced-compensated gradient ensemble (**LightGBM + Cost-Sensitive LR**), and a **Dual-Engine Glass-Box Explainability (XAI)** framework.
 
 ---
 
-## 🚀 Key Highlights & Research Breakthroughs
+## 🚀 Key Highlights
 
-| Capability | Prior Literature / Academic Baselines | StreamGuard-XAI (This System) |
+| Capability | Typical baseline approach | StreamGuard-XAI (this system) |
 | :--- | :--- | :--- |
 | **Ingestion Paradigm** | Offline static batch processing on CSV files | Real-time streaming over **Apache Kafka** & async micro-batches |
-| **Class Imbalance** | Severe recall collapse (Recall < 45%, misses > 55% of scams) | **84.39% Recall** & **88.48% F1-score** with cost-sensitive calibration |
-| **Feature Depth** | Unigram TF-IDF (blind to modern scams) | **Multi-Modal Hybrid:** Sublinear $n$-grams + 16 forensic threat vectors |
-| **Explainability (XAI)** | Black box or disconnected heuristic if-else rules | **Dual-Engine Glass-Box:** Model-intrinsic log-odds + forensic risk audit cards |
-| **Inference Latency** | Random Forest: 33.75 ms \| BERT: > 50 ms | **1.18 ms** per inference (**28.6× speedup**, > 800 postings/sec/core) |
-| **Storage & Resilience**| Fragile/unoperational database connections | **Dual-Persistence:** PostgreSQL 17 with automatic zero-downtime SQLite fallback |
-| **User Interface** | None | **Live Mission Control Dashboard** with real-time stream ticker & sandbox |
+| **Class Imbalance** | Untuned TF-IDF + LR misses over half the scams (recall 43.9% on our test split) | **84.39% recall** & **88.48% F1** with class weighting and a lowered decision threshold |
+| **Feature Depth** | Unigram TF-IDF | **Hybrid features:** sublinear $n$-grams + 16 hand-engineered forensic risk signals |
+| **Explainability (XAI)** | Black-box score | **Dual-engine explanations:** model log-odds contributions + forensic risk audit cards |
+| **Inference Latency** | Random Forest: 33.75 ms | **1.18 ms** per posting (28.6× faster than the RF baseline on the same machine) |
+| **Storage & Resilience**| Single database, fails if it is down | PostgreSQL 17 with automatic SQLite fallback |
+| **User Interface** | None | Live dashboard with a real-time stream ticker & test sandbox |
 
 ---
 
 ## 📊 Experimental Benchmark Evaluation
 
-Evaluated on the full **EMSCAD (Employment Scam Aegean Dataset)** with a rigorous **stratified 80/20 train/test holdout** ($N_{\text{test}} = 3,576$ postings, preserving the real-world 4.84% positive class distribution):
+Evaluated on the full **EMSCAD (Employment Scam Aegean Dataset)** with a **stratified 80/20 train/test holdout** ($N_{\text{test}} = 3,576$ postings, preserving the real-world 4.84% positive class distribution):
 
 | Model Architecture | Accuracy | Balanced Acc | Precision (Fraud) | Recall (Fraud) | F1-Score (Fraud) | ROC-AUC | PR-AUC | Latency (ms) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Baseline Logistic Regression** | 97.29% | 71.93% | 100.00% | 43.93% | 61.04% | 0.9808 | 0.8681 | 0.305 ms |
-| **Baseline Random Forest** | 98.07% | 80.03% | 100.00% | 60.12% | 75.09% | 0.9806 | 0.8879 | 33.749 ms |
+| **Baseline Logistic Regression** | 97.29% | 71.97% | 100.00% | 43.93% | 61.04% | 0.9808 | 0.8681 | 0.305 ms |
+| **Baseline Random Forest** | 98.07% | 80.06% | 100.00% | 60.12% | 75.09% | 0.9806 | 0.8879 | 33.749 ms |
 | **Proposed Calibrated LR (Ours)** | 95.69% | **94.99%** | 53.09% | **94.22%** | 67.92% | **0.9922** | 0.9043 | **0.159 ms** |
-| **Proposed StreamGuard LightGBM (Ours)** | **98.94%** | 92.02% | **92.99%** | **84.39%** | **88.48%** | 0.9914 | **0.9375** | **1.178 ms** |
+| **Proposed StreamGuard LightGBM (Ours)** | **98.94%** | 92.03% | **92.99%** | **84.39%** | **88.48%** | 0.9914 | **0.9375** | **1.178 ms** |
 
-> **Key Finding:** Baseline models missed over half of active recruitment scams due to class imbalance. StreamGuard achieves an **88.48% F1-score** (**+27.44% increase** over baseline LR) while preserving a **92.99% precision** to protect legitimate employers.
+> **Key finding:** the untuned baselines miss 40-56% of scams because of the class imbalance. StreamGuard LightGBM reaches **88.48% F1** (+27.4 percentage points over baseline LR) at **92.99% precision**. All numbers come from `models/evaluations/benchmark_results.json`, and a test fails if this table drifts from that file.
+
+**Limitations of this evaluation**
+- One 80/20 split with no separate validation set. The decision threshold (0.40) and the class-weight factor are fixed in `src/config.py` / `src/ml/train.py` and were not tuned on a held-out validation split, so the test scores may be somewhat optimistic.
+- The baselines use the default 0.5 threshold and no class weighting. Part of the recall gain comes from imbalance handling that the baselines could also use, not only from the extra features.
+- No cross-validation or confidence intervals; on 173 fraudulent test postings, one extra miss moves recall by about 0.6 points.
+- Latency was measured on one laptop CPU, per single posting.
 
 ---
 

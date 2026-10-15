@@ -165,10 +165,10 @@ We implemented and evaluated four distinct architectures:
 
 | Model Architecture | Accuracy | Balanced Acc | Precision (Fraud) | Recall (Fraud) | F1-Score (Fraud) | ROC-AUC | PR-AUC | Latency (ms) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Baseline Logistic Regression** | 97.29% | 71.93% | **100.00%** | 43.93% | 61.04% | 0.9808 | 0.8681 | 0.305 ms |
-| **Baseline Random Forest** | 98.07% | 80.03% | **100.00%** | 60.12% | 75.09% | 0.9806 | 0.8879 | 33.749 ms |
+| **Baseline Logistic Regression** | 97.29% | 71.97% | **100.00%** | 43.93% | 61.04% | 0.9808 | 0.8681 | 0.305 ms |
+| **Baseline Random Forest** | 98.07% | 80.06% | **100.00%** | 60.12% | 75.09% | 0.9806 | 0.8879 | 33.749 ms |
 | **Proposed Calibrated LR (Ours)** | 95.69% | **94.99%** | 53.09% | **94.22%** | 67.92% | **0.9922** | 0.9043 | **0.159 ms** |
-| **Proposed StreamGuard LightGBM (Ours)** | **98.94%** | 92.02% | 92.99% | 84.39% | **88.48%** | 0.9914 | **0.9375** | 1.178 ms |
+| **Proposed StreamGuard LightGBM (Ours)** | **98.94%** | 92.03% | 92.99% | 84.39% | **88.48%** | 0.9914 | **0.9375** | 1.178 ms |
 
 *Table 2: Comprehensive benchmark results on the EMSCAD holdout test partition (N=3,576).*
 
